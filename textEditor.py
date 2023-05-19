@@ -5,6 +5,8 @@ import os
 
 filePath = None
 
+copiedText = None
+
 def newFile():
     textBox.delete("1.0", END)
     root.title("TextEditor Deluxe - New File")
@@ -35,9 +37,6 @@ def saveFile():
     else:
         saveAsFile()
 
-
-
-
 def saveAsFile():
     if filePath != None:
         dir = os.path.dirname(filePath)
@@ -55,9 +54,48 @@ def saveAsFile():
 
         fileStream.close()
 
+def cutText(event=None):
+    global copiedText
+
+    if event:
+        copiedText = root.clipboard_get()
+    
+    else:
+        if textBox.selection_get():
+            copiedText = textBox.selection_get()
+            root.clipboard_clear()
+            root.clipboard_append(copiedText)
+            textBox.delete("sel.first", "sel.last")
+
+def copyText(event=None):
+    global copiedText
+
+    if event:
+        copiedText = root.clipboard_get()
+
+    else:
+        if textBox.selection_get():
+            root.clipboard_clear()
+            root.clipboard_append(copiedText)
+            copiedText = textBox.selection_get()
+
+def pasteText(event=None):
+    global copiedText
+
+    if event:
+        copiedText = root.clipboard_get()
+
+    else:
+        if copiedText != None: 
+            cursor = textBox.index(INSERT)
+            textBox.insert(cursor, copiedText)
 
 
 root = Tk()
+
+root.bind('<Control-x>', cutText)
+root.bind('<Control-c>', copyText)
+root.bind('<Control-v>', pasteText)
 
 root.title("TextEditor Deluxe")
 #root.iconbitmap("encoolbild.jpg")
@@ -91,9 +129,9 @@ fileCascade.add_command(label="Exit", command=root.quit) #NYI Add to save or not
 #NYI functionality for the edit dropdown items
 editCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="Edit", menu=editCascade)
-editCascade.add_command(label="Cut")
-editCascade.add_command(label="Copy")
-editCascade.add_command(label="Paste")
+editCascade.add_command(label="Cut", command=cutText)
+editCascade.add_command(label="Copy", command=copyText)
+editCascade.add_command(label="Paste", command=pasteText)
 
 #NYI functionality for the export function
 exportCascade = Menu(topMenu, tearoff=False)
