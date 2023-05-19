@@ -3,15 +3,18 @@ from tkinter import filedialog
 from tkinter import font
 import os
 
+filePath = None
+
 def newFile():
     textBox.delete("1.0", END)
     root.title("TextEditor Deluxe - New File")
     infoBar.config(text="New File | Unsaved  | words: NYI | letters: NYI")
+    filePath = None
 
 def openFile():
     textBox.delete("1.0", END)
 
-    filePath = filedialog.askopenfilename() #initialdir="C:\..." filetypes=((text files, "*.txt")("All files", "*.*""))
+    filePath = filedialog.askopenfilename(title="Open File") #initialdir="C:\..." filetypes=((text files, "*.txt")("All files", "*.*""))
     filename = os.path.basename(filePath)
     root.title(f"TextEditor Deluxe - {filename}")
     infoBar.config(text=f"{filePath} | Saved  | words: NYI | letters: NYI")
@@ -21,8 +24,36 @@ def openFile():
     textBox.insert(1.0, text)
     fileStream.close()
 
+def saveFile():
+    if filePath != None:
+        filename = os.path.basename(filePath)
+        root.title(f"TextEditor Deluxe - {filename}")
+        infoBar.config(text=f"{filePath} | Saved  | words: NYI | letters: NYI")
+        fileStream = open(filePath, 'w')
+        fileStream.write(textBox.get(1.0, END))
+        fileStream.close()
+    else:
+        saveAsFile()
 
 
+
+
+def saveAsFile():
+    if filePath != None:
+        dir = os.path.dirname(filePath)
+        newFilePath = filedialog.asksaveasfilename(defaultextension=".*", initialdir=dir, title="Save File")
+    else:
+        newFilePath = filedialog.asksaveasfilename(defaultextension=".*", title="Save File")
+
+    if newFilePath:
+        filename = os.path.basename(newFilePath)
+        root.title(f"TextEditor Deluxe - {filename}")
+        infoBar.config(text=f"{newFilePath} | Saved  | words: NYI | letters: NYI")
+
+        fileStream = open(newFilePath, 'w')
+        fileStream.write(textBox.get(1.0, END))
+
+        fileStream.close()
 
 
 
@@ -53,8 +84,8 @@ fileCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="File", menu=fileCascade)
 fileCascade.add_command(label="New", command=newFile)
 fileCascade.add_command(label="Open", command=openFile)
-fileCascade.add_command(label="Save", )#command=save
-fileCascade.add_command(label="Save as", )#command=saveAs
+fileCascade.add_command(label="Save", command=saveFile)
+fileCascade.add_command(label="Save as", command=saveAsFile)
 fileCascade.add_command(label="Exit", command=root.quit) #NYI Add to save or not if file is unsaved
 
 #NYI functionality for the edit dropdown items
