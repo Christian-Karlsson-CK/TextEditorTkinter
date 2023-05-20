@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import font
+from tkinter import colorchooser
 import os
 
 filePath = None
@@ -90,6 +91,47 @@ def pasteText(event=None):
             cursor = textBox.index(INSERT)
             textBox.insert(cursor, copiedText)
 
+def applyBoldToSelected():
+    boldFont = font.Font(textBox, textBox.cget("font"))
+    boldFont.configure(weight="bold")
+
+    textBox.tag_configure("bold", font=boldFont)
+    curTags = textBox.tag_names("sel.first")
+
+    if "bold" in curTags:
+        textBox.tag_remove("bold", "sel.first", "sel.last")
+    else:
+        textBox.tag_add("bold", "sel.first", "sel.last")
+
+def applyItalicsToSelected():
+    italicsFont = font.Font(textBox, textBox.cget("font"))
+    italicsFont.configure(slant="italic")
+
+    textBox.tag_configure("italic", font=italicsFont)
+    curTags = textBox.tag_names("sel.first")
+
+    if "italic" in curTags:
+        textBox.tag_remove("italic", "sel.first", "sel.last")
+    else:
+        textBox.tag_add("italic", "sel.first", "sel.last")
+
+
+def applyColorToSelected():
+
+    choosenColor = colorchooser.askcolor()[1]
+    
+    if choosenColor:
+        colorFont = font.Font(textBox, textBox.cget("font"))
+
+        textBox.tag_configure("colored", font=colorFont, foreground=choosenColor)
+        curTags = textBox.tag_names("sel.first")
+
+        if "bold" in curTags:
+            textBox.tag_remove("colored", "sel.first", "sel.last")
+        else:
+            textBox.tag_add("colored", "sel.first", "sel.last")
+
+
 
 root = Tk()
 
@@ -99,7 +141,10 @@ root.bind('<Control-v>', pasteText)
 
 root.title("TextEditor Deluxe")
 #root.iconbitmap("encoolbild.jpg")
-root.geometry("1175x630")
+root.geometry("1175x660")
+
+toolbar = Frame(root)
+toolbar.pack(fill=X)
 
 mainFrame = Frame(root)
 mainFrame.pack(pady=3)
@@ -109,7 +154,8 @@ textScroll.pack(side=RIGHT, fill=Y)
 
 consolasFont = font.Font(family="Consolas", size=16)
 
-textBox = Text(mainFrame, width=95, height=25, font=(consolasFont), selectbackground="#63B6EC", selectforeground="black", undo=True, yscrollcommand=textScroll.set)
+textBox = Text(mainFrame, width=95, height=25, font=(consolasFont), selectbackground="#63B6EC", 
+               selectforeground="black", undo=True, yscrollcommand=textScroll.set)
 textBox.pack()
 
 textScroll.config(command=textBox.yview)
@@ -117,7 +163,7 @@ textScroll.config(command=textBox.yview)
 topMenu = Menu(root)
 root.config(menu=topMenu)
 
-#NYI functionality for the file dropdown items
+
 fileCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="File", menu=fileCascade)
 fileCascade.add_command(label="New", command=newFile)
@@ -126,7 +172,6 @@ fileCascade.add_command(label="Save", command=saveFile)
 fileCascade.add_command(label="Save as", command=saveAsFile)
 fileCascade.add_command(label="Exit", command=root.quit) #NYI Add to save or not if file is unsaved
 
-#NYI functionality for the edit dropdown items
 editCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="Edit", menu=editCascade)
 editCascade.add_command(label="Cut", command=cutText)
@@ -148,6 +193,18 @@ convertCascade.add_command(label="Binary")
 aboutCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="About", menu=aboutCascade)
 aboutCascade.add_command(label="About")
+
+
+
+boldButton = Button(toolbar, text="Bold", command=applyBoldToSelected)
+boldButton.grid(row=0, column=0, sticky=W, padx=4)
+italicsButton = Button(toolbar, text="Italics", command=applyItalicsToSelected)
+italicsButton.grid(row=0, column=1, sticky=W, padx=4)
+
+colorButton = Button(toolbar, text="Text Color", command=applyColorToSelected)
+colorButton.grid(row=0, column=2, sticky=W, padx=4)
+
+
 
 #NYI add functionality for a word counter and letter counter.
 infoBar = Label(root, text="words: NYI - letters: NYI", anchor=E)
