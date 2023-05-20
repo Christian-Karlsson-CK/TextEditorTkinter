@@ -10,32 +10,46 @@ import os
 filePath = None
 
 copiedText = None
+words = 0
+letters = 0
+
 
 def newFile():
     global filePath
+    global words
+    global letters
     textBox.delete("1.0", END)
     root.title("TextEditor Deluxe - New File")
-    infoBar.config(text="New File | Unsaved  | words: NYI | letters: NYI")
+    infoBar.config(text=f"New File | Unsaved  | words: {words} | letters: {letters}")
     filePath = None
+    countWordsAndLetters()
 
 def openFile():
+    global filePath
+    global words
+    global letters
     textBox.delete("1.0", END)
 
-    filePath = filedialog.askopenfilename(title="Open File") #initialdir="C:\..." filetypes=((text files, "*.txt")("All files", "*.*""))
+    filePath = filedialog.askopenfilename(title="Open File", initialdir=filePath, filetypes=(("Text Files", "*.txt"), ("All files", "*.*")))
     filename = os.path.basename(filePath)
     root.title(f"TextEditor Deluxe - {filename}")
-    infoBar.config(text=f"{filePath} | Saved  | words: NYI | letters: NYI")
 
     fileStream = open(filePath, 'r')
     text = fileStream.read()
     textBox.insert(1.0, text)
     fileStream.close()
 
+    countWordsAndLetters()
+    infoBar.config(text=f"{filePath} | Saved  | words: {words} | letters: {letters}")
+
 def saveFile():
+    global filePath
+    global words
+    global letters
     if filePath != None:
         filename = os.path.basename(filePath)
         root.title(f"TextEditor Deluxe - {filename}")
-        infoBar.config(text=f"{filePath} | Saved  | words: NYI | letters: NYI")
+        infoBar.config(text=f"{filePath} | Saved  | words: {words} | letters: {letters}")
         fileStream = open(filePath, 'w')
         fileStream.write(textBox.get(1.0, END))
         fileStream.close()
@@ -43,6 +57,9 @@ def saveFile():
         saveAsFile()
 
 def saveAsFile():
+    global filePath
+    global words
+    global letters
     if filePath != None:
         dir = os.path.dirname(filePath)
         newFilePath = filedialog.asksaveasfilename(defaultextension=".*", initialdir=dir, title="Save File")
@@ -52,7 +69,7 @@ def saveAsFile():
     if newFilePath:
         filename = os.path.basename(newFilePath)
         root.title(f"TextEditor Deluxe - {filename}")
-        infoBar.config(text=f"{newFilePath} | Saved  | words: NYI | letters: NYI")
+        infoBar.config(text=f"{newFilePath} | Saved  | {words} | letters: {letters}")
 
         fileStream = open(newFilePath, 'w')
         fileStream.write(textBox.get(1.0, END))
@@ -165,6 +182,16 @@ def applyColorToSelected():
         else:
             textBox.tag_add("colored", "sel.first", "sel.last")
 
+def countWordsAndLetters(event=None):
+    global filePath
+    global words
+    global letters
+    text = textBox.get("1.0", "end-1c")
+    words = len(text.split())
+    letters = len(text.replace(" ", "").replace("\n", ""))
+    infoBar.config(text=f"{filePath} | Unsaved | words: {words} | letters: {letters}")
+
+
 
 
 root = Tk()
@@ -190,6 +217,7 @@ consolasFont = font.Font(family="Consolas", size=16)
 
 textBox = Text(mainFrame, width=95, height=25, font=(consolasFont), selectbackground="#63B6EC", 
                selectforeground="black", undo=True, yscrollcommand=textScroll.set)
+textBox.bind("<KeyRelease>", countWordsAndLetters)
 textBox.pack()
 
 textScroll.config(command=textBox.yview)
@@ -226,7 +254,6 @@ topMenu.add_cascade(label="About", menu=aboutCascade)
 aboutCascade.add_command(label="About", command=ShowAboutPopup)
 
 
-
 boldButton = Button(toolbar, text="Bold", command=applyBoldToSelected)
 boldButton.grid(row=0, column=0, sticky=W, padx=4)
 italicsButton = Button(toolbar, text="Italics", command=applyItalicsToSelected)
@@ -235,10 +262,7 @@ italicsButton.grid(row=0, column=1, sticky=W, padx=4)
 colorButton = Button(toolbar, text="Text Color", command=applyColorToSelected)
 colorButton.grid(row=0, column=2, sticky=W, padx=4)
 
-
-
-#NYI add functionality for a word counter and letter counter.
-infoBar = Label(root, text="words: NYI - letters: NYI", anchor=E)
+infoBar = Label(root, text="New File | Unsaved | words: 0 - letters: 0", anchor=E)
 
 infoBar.pack(fill=X,side=BOTTOM)
 
