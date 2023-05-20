@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import font
 from tkinter import colorchooser
+from reportlab.pdfgen import canvas
 import os
 
 filePath = None
@@ -9,6 +10,7 @@ filePath = None
 copiedText = None
 
 def newFile():
+    global filePath
     textBox.delete("1.0", END)
     root.title("TextEditor Deluxe - New File")
     infoBar.config(text="New File | Unsaved  | words: NYI | letters: NYI")
@@ -52,6 +54,34 @@ def saveAsFile():
 
         fileStream = open(newFilePath, 'w')
         fileStream.write(textBox.get(1.0, END))
+
+        fileStream.close()
+
+def convertToPDF():
+    filename = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
+    if filename:
+        c = canvas.Canvas(filename)
+        text = textBox.get(1.0, "end-1c")  # end-1c removes newlines after last letter.
+        c.drawString(50, 700, text)  # Draw the text on the PDF canvas
+        c.save()
+
+def convertToBinary(string):
+    binary_string = ''
+    for char in string:
+        if char == '\n':
+            binary_string += '\n'
+        else:
+            binary_string += format(ord(char), '08b') + ' '
+    return binary_string.strip()
+
+def saveAsBinaryFile():
+
+    binaryFilePath = filedialog.asksaveasfilename(defaultextension=".*", title="Save File")
+
+    if binaryFilePath:
+        text = textBox.get(1.0, END)
+        fileStream = open(binaryFilePath, 'w')
+        fileStream.write(convertToBinary(text))
 
         fileStream.close()
 
@@ -115,7 +145,6 @@ def applyItalicsToSelected():
     else:
         textBox.tag_add("italic", "sel.first", "sel.last")
 
-
 def applyColorToSelected():
 
     choosenColor = colorchooser.askcolor()[1]
@@ -178,15 +207,13 @@ editCascade.add_command(label="Cut", command=cutText)
 editCascade.add_command(label="Copy", command=copyText)
 editCascade.add_command(label="Paste", command=pasteText)
 
-#NYI functionality for the export function
 exportCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="Export", menu=exportCascade)
-exportCascade.add_command(label="PDF")
+exportCascade.add_command(label="PDF", command=convertToPDF)
 
-#NYI functionality for the conversion item
 convertCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="Convert", menu=convertCascade)
-convertCascade.add_command(label="Binary")
+convertCascade.add_command(label="To Binary", command=saveAsBinaryFile)
 
 
 #NYI add a popupwindow for a about message!
