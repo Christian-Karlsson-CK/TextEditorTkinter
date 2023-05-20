@@ -39,6 +39,7 @@ def openFile():
     textBox.insert(1.0, text)
     fileStream.close()
 
+    addProgrammingForeground()
     countWordsAndLetters()
     infoBar.config(text=f"{filePath} | Saved  | words: {words} | letters: {letters}")
 
@@ -67,6 +68,7 @@ def saveAsFile():
         newFilePath = filedialog.asksaveasfilename(defaultextension=".*", title="Save File")
 
     if newFilePath:
+        filePath = newFilePath
         filename = os.path.basename(newFilePath)
         root.title(f"TextEditor Deluxe - {filename}")
         infoBar.config(text=f"{newFilePath} | Saved  | {words} | letters: {letters}")
@@ -177,7 +179,7 @@ def applyColorToSelected():
         textBox.tag_configure("colored", font=colorFont, foreground=choosenColor)
         curTags = textBox.tag_names("sel.first")
 
-        if "bold" in curTags:
+        if "colored" in curTags:
             textBox.tag_remove("colored", "sel.first", "sel.last")
         else:
             textBox.tag_add("colored", "sel.first", "sel.last")
@@ -191,7 +193,68 @@ def countWordsAndLetters(event=None):
     letters = len(text.replace(" ", "").replace("\n", ""))
     infoBar.config(text=f"{filePath} | Unsaved | words: {words} | letters: {letters}")
 
+def addProgrammingForeground(event=None):
+    purpleKeywords = ["for", "while", "if", "else", "in", "{","}", "from", "import", "break"]
+    blueKeywords = ["False","True","not","def","class","global","None", "lambda"]
+    yellowKeywords = ["[", "]"]
+    redKeywords = ["(", ")"]
 
+    # Remove previous highlighting
+    textBox.tag_remove("purpleKeywords", "1.0", "end")
+    textBox.tag_remove("blueKeywords", "1.0", "end")
+    textBox.tag_remove("yellowKeywords", "1.0", "end")
+    textBox.tag_remove("redKeywords", "1.0", "end")
+
+    for word in purpleKeywords:
+
+        start = "1.0"
+        while True:
+            # Search for the next occurrence of the keyword
+            start = textBox.search(word, start, stopindex="end", nocase=True)
+            if not start:
+                break
+            end = f"{start}+{len(word)}c"
+            textBox.tag_add("purpleKeywords", start, end)
+            start = end
+
+    for word in blueKeywords:
+        start = "1.0"
+        while True:
+            # Search for the next occurrence of the keyword
+            start = textBox.search(word, start, stopindex="end", nocase=True)
+            if not start:
+                break
+            end = f"{start}+{len(word)}c"
+            textBox.tag_add("blueKeywords", start, end)
+            start = end
+        
+    for word in yellowKeywords:
+        start = "1.0"
+        while True:
+            # Search for the next occurrence of the keyword
+            start = textBox.search(word, start, stopindex="end", nocase=True)
+            if not start:
+                break
+            end = f"{start}+{len(word)}c"
+            textBox.tag_add("yellowKeywords", start, end)
+            start = end
+    
+    for word in redKeywords:
+        start = "1.0"
+        while True:
+            # Search for the next occurrence of the keyword
+            start = textBox.search(word, start, stopindex="end", nocase=True)
+            if not start:
+                break
+            end = f"{start}+{len(word)}c"
+            textBox.tag_add("redKeywords", start, end)
+            start = end
+
+    # Configure the tag to have a different color
+    textBox.tag_configure("purpleKeywords", foreground="purple")
+    textBox.tag_configure("blueKeywords", foreground="blue")
+    textBox.tag_configure("yellowKeywords", foreground="yellow")
+    textBox.tag_configure("redKeywords", foreground="red")
 
 
 root = Tk()
@@ -217,7 +280,7 @@ consolasFont = font.Font(family="Consolas", size=16)
 
 textBox = Text(mainFrame, width=95, height=25, font=(consolasFont), selectbackground="#63B6EC", 
                selectforeground="black", undo=True, yscrollcommand=textScroll.set)
-textBox.bind("<KeyRelease>", countWordsAndLetters)
+textBox.bind("<KeyRelease>", lambda event: (countWordsAndLetters(event), addProgrammingForeground(event)))
 textBox.pack()
 
 textScroll.config(command=textBox.yview)
