@@ -2,7 +2,9 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import font
 from tkinter import colorchooser
+from tkinter import messagebox
 from reportlab.pdfgen import canvas
+
 import os
 
 filePath = None
@@ -84,6 +86,9 @@ def saveAsBinaryFile():
         fileStream.write(convertToBinary(text))
 
         fileStream.close()
+
+def ShowAboutPopup():
+    messagebox.showinfo("About", "TextEditor Deluxe\nVersion 1.0\n\nThis is a simple text editor application.")
 
 def cutText(event=None):
     global copiedText
@@ -216,10 +221,9 @@ topMenu.add_cascade(label="Convert", menu=convertCascade)
 convertCascade.add_command(label="To Binary", command=saveAsBinaryFile)
 
 
-#NYI add a popupwindow for a about message!
 aboutCascade = Menu(topMenu, tearoff=False)
 topMenu.add_cascade(label="About", menu=aboutCascade)
-aboutCascade.add_command(label="About")
+aboutCascade.add_command(label="About", command=ShowAboutPopup)
 
 
 
