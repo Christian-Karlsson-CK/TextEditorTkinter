@@ -12,7 +12,7 @@ filePath = None
 copiedText = None
 words = 0
 letters = 0
-
+colorCodingEnabled = False
 
 def newFile():
     global filePath
@@ -250,6 +250,17 @@ def addProgrammingForeground(event=None):
             textBox.tag_add("redKeywords", start, end)
             start = end
 
+def toggleColorCoding():
+    global colorCodingEnabled
+    colorCodingEnabled = not colorCodingEnabled
+    if colorCodingEnabled:
+        addProgrammingForeground()
+    else:
+        textBox.tag_remove("purpleKeywords", "1.0", "end")
+        textBox.tag_remove("blueKeywords", "1.0", "end")
+        textBox.tag_remove("yellowKeywords", "1.0", "end")
+        textBox.tag_remove("redKeywords", "1.0", "end")
+
     # Configure the tag to have a different color
     textBox.tag_configure("purpleKeywords", foreground="purple")
     textBox.tag_configure("blueKeywords", foreground="blue")
@@ -325,29 +336,12 @@ italicsButton.grid(row=0, column=1, sticky=W, padx=4)
 colorButton = Button(toolbar, text="Text Color", command=applyColorToSelected)
 colorButton.grid(row=0, column=2, sticky=W, padx=4)
 
+colorCodingCheckbox = Checkbutton(toolbar, text="Enable Syntax Coloring", command=toggleColorCoding)
+colorCodingCheckbox.grid(row=0, column=3, sticky=W, padx=4)
+
 infoBar = Label(root, text="New File | Unsaved | words: 0 - letters: 0", anchor=E)
 
 infoBar.pack(fill=X,side=BOTTOM)
 
 
-
-
-
-
-
-
-
-
-
-
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
